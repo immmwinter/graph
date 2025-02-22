@@ -1,0 +1,81 @@
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <SFML/Graphics.hpp>
+using namespace std;
+
+class Button {
+
+public:
+    Button() {}
+    Button(string t, sf::Vector2f size, int charSize, sf::Color bgColor, sf::Color textColor) {
+        text.setString(t);
+        text.setFillColor(textColor);
+        text.setCharacterSize(charSize);
+
+        button.setPointCount(8); // ใช้ 8 จุดเพื่อสร้างมุมโค้งมน
+        float radius = 10.0f;
+
+        button.setPoint(0, sf::Vector2f(radius, 0));
+        button.setPoint(1, sf::Vector2f(size.x - radius, 0));
+        button.setPoint(2, sf::Vector2f(size.x, radius));
+        button.setPoint(3, sf::Vector2f(size.x, size.y - radius));
+        button.setPoint(4, sf::Vector2f(size.x - radius, size.y));
+        button.setPoint(5, sf::Vector2f(radius, size.y));
+        button.setPoint(6, sf::Vector2f(0, size.y - radius));
+        button.setPoint(7, sf::Vector2f(0, radius));
+
+        button.setFillColor(bgColor);
+        button.setOutlineThickness(2);
+        button.setOutlineColor(sf::Color::Black);
+    }
+
+    void setfont(sf::Font& font) {
+        text.setFont(font);
+    }
+
+    void setBackColor(sf::Color color) {
+        button.setFillColor(color);
+    }
+
+    void setTextColor(sf::Color color) {
+        text.setFillColor(color);
+    }
+
+    void setPosition(sf::Vector2f pos) {
+        button.setPosition(pos);
+
+        sf::FloatRect textBounds = text.getLocalBounds();
+        float xPos = pos.x + (button.getPoint(2).x - textBounds.width) / 2 - textBounds.left;
+        float yPos = pos.y + (button.getPoint(5).y - textBounds.height) / 2 - textBounds.top;
+        text.setPosition({ xPos, yPos });
+    }
+
+    void drawTo(sf::RenderWindow& window) {
+        window.draw(button);
+        window.draw(text);
+    }
+
+    bool isMouseOver(sf::RenderWindow& window) {
+        float mouseX = sf::Mouse::getPosition(window).x;
+        float mouseY = sf::Mouse::getPosition(window).y;
+
+        float btnPosX = button.getPosition().x;
+        float btnPosY = button.getPosition().y;
+
+        float btnxPosWidth = btnPosX + button.getPoint(2).x;
+        float btnxPosHeight = btnPosY + button.getPoint(5).y;
+
+        if (mouseX < btnxPosWidth && mouseX > btnPosX && mouseY < btnxPosHeight && mouseY > btnPosY) {
+            return true;
+        }
+        return false;
+    }
+
+private:
+    sf::ConvexShape button; // ใช้ ConvexShape เพื่อทำมุมโค้งมน
+    sf::Text text;
+};
